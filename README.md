@@ -1,16 +1,46 @@
-### Hi there 👋
+pragma solidity ^0.8.2;
 
-<!--
-**Crackers-Finance/Crackers-Finance** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-
-Here are some ideas to get you started:
-
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+contract Token {
+    mapping(address => uint) public balances;
+    mapping(address => mapping(address => uint))public allowance;
+    uint public totalSupply = 10000000 * 10 ** 18;
+    string public name = "Crackers Finance";
+    string public symbol = "CKF";
+    uint public decimals = 18;
+    
+    event Transfer(address indexed from, address indexed to, uint value);
+    event Approval(address indexed owner, address indexed spender, uint value);
+    
+    constructor() {
+        balances[msg.sender] = totalSupply;
+    }
+    
+    function balanceOf(address owner) public view returns(uint) {
+        return balances[owner];
+    }
+    
+    function transfer(address to, uint value) public returns(bool) {
+        require(balanceOf(msg.sender)>= value, 'balance too low');
+        balances[to] += value;
+        balances[msg.sender] -= value;
+        emit Transfer(msg.sender, to, value);
+        return true;
+    }
+    
+    function transferFrom(address from, address to, uint value) public returns(bool) {
+        require(balanceOf(from)>= value, 'balance too low');
+        require(allowance[from][msg.sender]>= value, 'allowance too low');
+        balances[to] += value;
+        balances[from] -= value;
+        emit Transfer(from, to, value);
+        return true;
+        
+        
+    }
+    
+    function approve(address spender, uint value) public returns(bool) {
+        allowance[msg.sender][spender] = value;
+        emit Approval(msg.sender, spender, value);
+        return true;
+    }
+}
